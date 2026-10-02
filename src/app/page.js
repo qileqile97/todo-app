@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Segmented } from "antd";
 import useTodos from "@/hooks/useTodos";
 import AddTodo from "@/components/AddTodo";
 import Filters from "@/components/Filters";
 import TodoList from "@/components/TodoList";
 import TodoPagination from "@/components/TodoPagination";
 import ImportExport from "@/components/ImportExport";
+import TodoCalendar from "@/components/TodoCalendar";
 
 export default function Home() {
   const { todos, addTodo, importTodos, deleteTodo, toggleTodo, updateTodo } = useTodos();
@@ -16,6 +18,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("none");
+  const [view, setView] = useState("list");   // "list" or "calendar"
 
   const query = search.trim().toLowerCase();
   const filtered = todos.filter((todo) => {
@@ -44,7 +47,7 @@ export default function Home() {
   const pageItems = sorted.slice(start, start + pageSize);
 
   return (
-    <main style={{ padding: 40, maxWidth: 800 }}>
+    <main style={{ padding: 40, maxWidth: 1000 }}>
       <h1>My To-Do App</h1>
       <ImportExport 
         todos={todos}
@@ -59,17 +62,32 @@ export default function Home() {
         onStatusChange={(value) => { setStatusFilter(value); setPage(1); }}
         onSortChange={(value) => setSortOrder(value)}
       />
-      <TodoList todos={pageItems} onToggle={toggleTodo} onDelete={deleteTodo} onUpdate={updateTodo} />
-      <TodoPagination
-          currentPage={currentPage}
-          pageSize={pageSize}
-          total={sorted.length}
-          totalPages={totalPages}
-          onChange={(p, size) => {
-            setPage(size !== pageSize ? 1 : p);  // changing page size → back to page 1
-            setPageSize(size);
-          }}
+      <Segmented
+        value={view}
+        onChange={(value) => setView(value)}
+        options={[
+          { value: "list", label: "List" },
+          { value: "calendar", label: "Calendar" },
+        ]}
+        style={{ marginBottom: 16 }}
       />
+      {view === "list" ? (
+        <>
+          <TodoList todos={pageItems} onToggle={toggleTodo} onDelete={deleteTodo} onUpdate={updateTodo} />
+          <TodoPagination
+              currentPage={currentPage}
+              pageSize={pageSize}
+              total={sorted.length}
+              totalPages={totalPages}
+              onChange={(p, size) => {
+                setPage(size !== pageSize ? 1 : p);  // changing page size → back to page 1
+                setPageSize(size);
+              }}
+          />
+        </>
+      ) : (
+        <TodoCalendar todos={sorted} />
+      )}
     </main>
   );
 }

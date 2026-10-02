@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button, Checkbox, Input, Tag } from "antd";
-
-const CATEGORY_COLORS = { Work: "blue", Personal: "green", Urgent: "red" };
+import { CATEGORY_COLORS } from "@/lib/constants";
 
 export default function TodoItem({
  todo, onToggle, onDelete, onUpdate
